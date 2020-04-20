@@ -1,0 +1,277 @@
+---
+title: "R Notebook"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+    code_folding: "hide"
+  word_document: default
+---
+
+
+
+```{r}
+# Install
+#install.packages("tm")  # for text mining
+#install.packages("SnowballC") # for text stemming
+#install.packages("wordcloud") # word-cloud generator 
+#install.packages("RColorBrewer") # color palettes
+
+# Load
+library(phangorn) 
+library(magrittr) 
+library("tm")
+library("SnowballC")
+library("wordcloud")
+library("RColorBrewer")
+library(ggplot2)
+library(plot3D)
+
+
+```
+
+```{r}
+
+dat <- read.csv("combined_data.csv", header = T, row.names = 1)
+
+ggplot(dat, aes(x = dat$ref_GCA_001411495_CEPA, y = dat$ref_GCA_000014085_CENO, colour = class)) +
+  geom_point() +
+  ggtitle("2D plot") + 
+  xlab("cepacia") +
+  ylab("cenocepacaia")
+
+ggplot(dat, aes(x = dat$ref_GCA_001411495_CEPA, y = dat$ref_GCA_000010545_MULTI, colour = class)) +
+  geom_point() +
+  ggtitle("2D plot") + 
+xlab("cepacia") +
+ylab("multivorans")
+
+ggplot(dat, aes(x = dat$ref_GCA_001411495_CEPA, y = dat$ref_GCA_000194745_gladioli, colour = class)) +
+  geom_point() +
+  ggtitle("2D plot") + 
+xlab("cepacia") +
+ylab("gladioli [GCA_000194745]")
+
+ggplot(dat, aes(x = dat$ref_GCA_001411495_CEPA, y = dat$ref_GCA_000959725_gladioli, colour = class)) +
+  geom_point() +
+  ggtitle("2D plot") + 
+xlab("cepacia") +
+ylab("gladioli [GCA_000959725]")
+
+ggplot(dat, aes(x = dat$ref_GCA_000194745_gladioli, y = dat$ref_GCA_000009485_CENO, colour = class)) +
+  geom_point() +
+  ggtitle("2D plot") + 
+xlab("gladioli [GCA_000194745]") +
+ylab("Cenocepacia")
+
+
+# plot 3D [1]
+x <- dat$ref_GCA_001411495_CEPA # cepacia
+y <- dat$ref_GCA_000010545_MULTI # multivorans
+z <- dat$ref_GCA_000009485_CENO # cenocepacia
+
+png("3D_plot1.png",
+width = 5*300,        # 5 x 300 pixels
+height = 5*300,
+res = 300,            # 300 pixels per inch
+pointsize = 8) 
+scatter3D(x, y, z, clab = c("MASH distance"),  bty = "g", 
+          colkey = TRUE, main ="3D plot (892 genomes)\n[cepacia, multivorans, cenocepacia]", 
+          col.panel ="steelblue", expand =1.0, 
+          col.grid = "darkblue", 
+          theta = 30, phi = 30, 
+          pch = 20, cex = 1.5, ticktype = "detailed", 
+          xlab = "cepacia",
+          ylab = "multivorans", 
+          zlab = "cenocepacia")
+dev.off()
+
+# plot 3D [2]
+x <- dat$ref_GCA_001411495_CEPA # cepacia
+y <- dat$ref_GCA_000194745_gladioli # gladioli
+z <- dat$ref_GCA_000009485_CENO # cenocepacia
+
+png("3D_plot2.png",
+width = 5*300,        # 5 x 300 pixels
+height = 5*300,
+res = 300,            # 300 pixels per inch
+pointsize = 8)
+scatter3D(x, y, z, clab = c("MASH distance"),  bty = "g", 
+          colkey = TRUE, main ="3D plot (892 genomes)\n[cepacia, gladioli, cenocepacia]", 
+          col.panel ="steelblue", expand =1.0, 
+          col.grid = "darkblue", 
+          theta = 30, phi = 30, 
+          pch = 20, cex = 1.5, ticktype = "detailed", 
+          xlab = "cepacia",
+          ylab = "Gladioli", 
+          zlab = "cenocepacia")
+
+dev.off()
+
+#text3D(x, y, z,  labels = rownames(dat),
+#        add = TRUE, colkey = FALSE, cex = 0.5)
+```
+
+```{r,, eval=FALSE}
+# set up to manipulate networks
+#netw1 <- read.nexus.networx("cepacia_like_list_from_all_merged.fa.ntw")
+
+#ar(mfrow=c(1,2))  
+#plot(raxml.tree, "u", rotate.tree = 180, cex=.7) 
+#edgelabels(raxml.tree$edge[,2],col="blue", frame="none", cex=.7)
+
+# find edges that are in the network but not in the tree
+#edge.col <- rep("black", nrow(Nnet$edge))
+#edge.col[ is.na(edge.lab) ] <- "red"
+# or a simpler alternative...
+#edge.col <- createLabel(Nnet, raxml.tree, "black", nomatch="red")
+
+#x <- plot(Nnet, edge.label = edge.lab, show.edge.label = T, "2D", edge.color = edge.col,
+#                  col.edge.label = "blue", cex=.7)
+#
+```
+## Classification using phylogenetic networks
+
+```{r, eval=FALSE}
+## PREVIOUS ANALYSES
+#\newpage
+
+#<div style="width:1200px; height=1200px">
+#![Nnet analysis based on ~ half genomes. Scepa_merged_1.fa: 98 cepacia like genomes (assigned by MASH), one cenocepacia (GCA_000009485) and one multivorans (GCA_000010545). #](cepacia_like_list_from_all_merged.png)
+
+
+#\newpage
+
+#<div style="width:1200px; height=1200px">
+#![Nnet analysis based on ~ half genomes. Scepa_merged_1.fa: 98 cepacia like genomes (assigned by MASH) one cenocepacia (GCA_000009485) and one multivorans (GCA_000010545) + 20 randomly selected cenocepacia #like species. List of cenocepacia added to the network: MUQF01, LPJC01, MEBA01, MUVG01, MURE0,1 LPDY01, LOUX01, LPKP01, LOYW01, LOTH01, LPDC01, MUPR01, LOZY01, ABLK01, MEBH01, MURI01, LPCP01, JPGD01, #LOWI01, MUUL01, LPLH01)](cepa_merged_1.png)
+
+#</div>
+
+#\newpage
+
+#<div style="width:1200px; height=1200px">
+#![Nnet analysis based on ~ half genomes. Scepa_merged_1.fa: 98 cepacia like genomes (assigned by MASH) + 40 randomly selected cenocepacia like species. List of cenocepacia added: #LPCP01,LPKT01,ALJA02,MUVP01,LOTS01,LOVU01,LOZS01,MUWC01,MUTN01,LOXO01,LPJE01,LPJO01,JYMZ01,LKPJ01,LPBA01,MUWO01,MUJQ01,LPJX01, #LOZT01,LOWN01,MUSR01,LPBK01,MUWN01,MUUN01,MUTY01,MUTR01,LPDU01,LPKY01,LPGP01,LPEG01,LPFC01,LOZF01,LOTO01,LOXC01,LPDV01,MUTH01,LPMO01,MUVH01,MUWR01,MURJ01,LOYT01.](cepa_merged_2.png)
+
+#</div>
+```
+
+\newpage
+<div style="width:1000px; height=2000px">
+![Nnet analysis based on ~ half genomes. 104 cepacia like, 10 gladioli like, 47 multivorans like, 101 cenocepacia like](seq_temp_v1.all_cons.fasta.ntw.png)
+
+</div>
+
+
+
+## Comparing MASH Distance based assignment to NCBI annotations
+
+### Cepacia-like
+```{r}
+
+# retrieving genomes 
+
+cepacia_like <- read.csv("seq_temp_v1.cepacia.annotated.tab", header = F)
+cenocepacia_like <- read.csv("cenocepacia_like.tmp.1_rand100.annotated.tab", header = F)
+multi_like <- read.csv("seq_temp_v1.multi.annotated.tab", header = F)
+gladioli_like <- read.csv("seq_temp_v1.gladioli.annotated.tab", header = F)
+
+# set word clound
+# http://www.sthda.com/english/wiki/text-mining-and-word-cloud-fundamentals-in-r-5-simple-steps-you-should-know
+
+## cepacia_like
+docs <- Corpus(VectorSource(cepacia_like$V5))
+#inspect(docs)
+
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, "", x))
+docs <- tm_map(docs, toSpace, "Burkholderia_")
+
+dtm <- TermDocumentMatrix(docs)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+head(d, 10)
+
+
+set.seed(1234)
+wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+### Cenocepacia_like
+
+```{r}
+
+docs <- Corpus(VectorSource(cenocepacia_like$V5))
+#inspect(docs)
+
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, "", x))
+docs <- tm_map(docs, toSpace, "Burkholderia_")
+
+dtm <- TermDocumentMatrix(docs)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+#head(d, 10)
+
+
+set.seed(1234)
+wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+### Multivorans like
+
+
+```{r}
+## multi_like
+docs <- Corpus(VectorSource(multi_like$V5))
+#inspect(docs)
+
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, "", x))
+docs <- tm_map(docs, toSpace, "Burkholderia_")
+
+dtm <- TermDocumentMatrix(docs)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+#head(d, 10)
+
+
+set.seed(1234)
+wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+### Gladioli like
+
+```{r}
+
+## gladioli_like 
+docs <- Corpus(VectorSource(gladioli_like$V5))
+#inspect(docs)
+
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, "", x))
+docs <- tm_map(docs, toSpace, "Burkholderia_")
+
+dtm <- TermDocumentMatrix(docs)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+#head(d, 10)
+
+
+set.seed(1234)
+wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+text("Note: the set of genomes assigned as gladioli looks clean")
+
+```
+
+
+
+
+

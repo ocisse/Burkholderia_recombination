@@ -1,0 +1,66 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+# COMP1
+# TREE1 - “burk_merged_cleanR_1.nwk” => (889 genomes, Astral reconstruction based 2403 gene trees + 142 gene trees with evidence of recombination) # NEW
+# TREE2 - “burk_sp_tree_V2_allG.NAME_UPDATED.nwk”   =>  (889 genomes, Astral reconstruction based 2403 gene trees, best ML tree)
+# TREE3 - “burk_sp_tree_V2_7G.NAME_UPDATED.nwk”   =>  (836 genomes, Astral reconstruction based 7 gene marker trees, ML bootstraps trees incorporated).
+# TREE4 - “burk_sp_7G.concat.aln.NAME_UPDATED.nwk” => (836 genomes, 7 makers concatenated, Maximum likelihood phylogeny, 100 bootstraps, Parametric aLRT test 1000)
+# TREE5 - "burk_sp_7G.concat.aln.fastTree.nwk"      =>      (836 genomes, 7 makers concatenated, FASTREE Maximum likelihood phylogeny)"
+```
+
+```{bash}
+# cp burk_sp_tree_V2_allG.NAME_UPDATED.nwk burk_sp_tree_V2_allG.NAME_UPDATED_clean.nwk
+# TREE6 - "burk_sp_tree_V2_allG.NAME_UPDATED_clean.nwk"    => same burk_sp_tree_V2_7G.NAME_UPDATED.nwk but with clean names so it can match
+#perl -pi.old -E 's/_Stabilis|_Contaminans|_Burkholderia_gladioli|_Diffusa|_Cepacia|_Pyrrocinia|_Multivorans|_Uncharacterized|_Stagnalis|_Ambifaria|_Cenocepacia|_Anthina//g' burk_sp_tree_V2_allG.NAME_UPDATED_clean.nwk
+```
+
+```{r}
+t1 <- read.tree("../../data/processed/Trees/burk_merged_cleanR_1.nwk")
+#plot(t1)
+t2 <- read.tree("../../data/processed/Trees/burk_sp_tree_V2_allG.NAME_UPDATED_clean.nwk")
+#treedist(t1,t2, check.labels = TRUE)
+RF.dist(t1, t2, normalize = TRUE, check.labels = TRUE, rooted = FALSE)
+
+#t3 <- read.tree("../../data/processed/Trees/burk_sp_tree_V2_7G.NAME_UPDATED_clean.nwk") # not working
+#obj <- readLines("../../data/processed/Trees/burk_sp_tree_V2_7G.NAME_UPDATED_clean.nwk")
+#ii <-grep("t3_1", obj)
+#x<-strsplit(obj[ii],"")[[1]]
+#t3<-read.tree(text = x[length(x)])
+
+# compare legacy phylo to astral tree
+t4 <- read.tree("../../data/processed/Trees/burk_sp_7G.concat.aln.contree")
+RF.dist(t2, t4, normalize = TRUE, check.labels = TRUE, rooted = FALSE)
+# the two trees have different labels - not reconciable
+
+t5 <- read.tree("../../data/processed/Trees/burk_sp_tree_V2_7G.nwk") # multi-trees do not use it
+t6 <- read.tree("../../data/processed/Trees/burk_sp_7G.concat.aln.fastTree.nwk")
+
+# try in http://phylo.io/
+# burk_sp_tree_V2_allG.NAME_UPDATED_clean.nwk vs burk_sp_tree_V2_7G.NAME_UPDATED_clean.nwk => Phylo.io-cmp_1.svg
+
+```
+
+
+comparing CLonalFrameML tree to the other tree
+```{r}
+
+ft <- read.tree("../../data/processed/ClonalFrameML/Merged/all_merged.tree")
+ct <- read.tree("../../data/processed/ClonalFrameML/Merged/all_merged.labelled_tree.newick")
+
+RF.dist(ft, ct, normalize = TRUE, check.labels = TRUE, rooted = FALSE) # two trees are identical
+
+### process the all_merged.importation_status.txt to know the median size of importation
+
+r1 <- read.table("../../data/processed/ClonalFrameML/Merged/all_merged.importation_status.txt", header = T, sep = "\t")
+r1$diff <- (r1$End - r1$Beg)
+mean(r1$diff)
+
+```
