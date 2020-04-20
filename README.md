@@ -4,16 +4,16 @@ Honghui Wang, Ousmane H. Cissé, Thomas Bolig, Steven K. Drake, Yong Chen, Jeffr
 
 (To be updated)
 
-### listing
+##### listing
 
 
-### Analysis
+##### Analysis
 	Phylgenetic comparisons:	notebooks/Tree_comparison.Rmd
 	MASH distance:	src/viz
 
-### External data 
+##### External data 
 	data/external/Sahl_et_al_2016
 
-#### raw data are available in Zenodo
+##### raw data are available in Zenodo
 
 
